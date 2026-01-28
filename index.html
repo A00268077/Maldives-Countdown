@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Countdown to Feb 5, 2026</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0b0f19; color: #e7ecff; }
+    .card {
+      width: min(720px, 92vw);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    h1 { margin: 0 0 10px; font-size: clamp(20px, 2.4vw, 28px); font-weight: 700; }
+    .meta { opacity: 0.85; margin-bottom: 18px; line-height: 1.4; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .box {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 16px 10px;
+      text-align: center;
+    }
+    .num { font-size: clamp(28px, 5vw, 52px); font-weight: 800; letter-spacing: 0.5px; }
+    .label { margin-top: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.85; }
+    .status { margin-top: 18px; font-size: 14px; opacity: 0.9; }
+    .small { font-size: 12px; opacity: 0.75; margin-top: 8px; }
+    @media (max-width: 520px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="card" role="group" aria-label="Countdown timer">
+    <h1>Countdown to 5 February 2026 (00:00)</h1>
+    <div class="meta">
+      Target time: <strong id="targetText"></strong><br/>
+      Your local time now: <strong id="nowText"></strong>
+    </div>
+
+    <div class="grid" aria-live="polite">
+      <div class="box"><div class="num" id="days">--</div><div class="label">Days</div></div>
+      <div class="box"><div class="num" id="hours">--</div><div class="label">Hours</div></div>
+      <div class="box"><div class="num" id="mins">--</div><div class="label">Minutes</div></div>
+      <div class="box"><div class="num" id="secs">--</div><div class="label">Seconds</div></div>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="small">Note: Uses your device’s local timezone.</div>
+  </div>
+
+  <script>
+    // Midnight at the start of Feb 5, 2026 in the user's *local* timezone:
+    const target = new Date(2027, 1, 5, 0, 0, 0); // Month is 0-based: 1 = February
+
+    const $ = (id) => document.getElementById(id);
+    const pad2 = (n) => String(n).padStart(2, "0");
+
+    function formatLocal(dt) {
+      // Example: Thu Feb 05 2027 00:00:00 (GMT+0)
+      return dt.toString();
+    }
+
+    $("targetText").textContent = formatLocal(target);
+
+    function tick() {
+      const now = new Date();
+      $("nowText").textContent = formatLocal(now);
+
+      let diffMs = target - now;
+
+      if (diffMs <= 0) {
+        $("days").textContent = "00";
+        $("hours").textContent = "00";
+        $("mins").textContent = "00";
+        $("secs").textContent = "00";
+        $("status").textContent = "Time’s up — it is now past the target moment.";
+        return;
+      }
+
+      const totalSeconds = Math.floor(diffMs / 1000);
+
+      const days = Math.floor(totalSeconds / (24 * 3600));
+      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+
+      $("days").textContent = String(days);
+      $("hours").textContent = pad2(hours);
+      $("mins").textContent = pad2(mins);
+      $("secs").textContent = pad2(secs);
+
+      $("status").textContent = "Counting down…";
+    }
+
+    tick();
+    setInterval(tick, 250); // smoother seconds change without drifting much
+  </script>
+</body>
+</html>
